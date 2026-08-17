@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Desk Dashboard</title>
+</head>
+
+<body>
+
+    <h1>Smart Desk Dashboard</h1>
+
+    {% if latest %}
+
+        <h2>Current Environment</h2>
+
+        <p>
+            Temperature:
+            {{ latest["temperature_c"] }} °C
+        </p>
+
+        <p>
+            Humidity:
+            {{ latest["humidity_pct"] }}%
+        </p>
+
+        <h2>Current Session</h2>
+
+        <p>
+            Status:
+            {% if latest["session_active"] %}
+                RUNNING
+            {% else %}
+                IDLE
+            {% endif %}
+        </p>
+
+        <p>
+            Elapsed:
+            {{ latest["session_elapsed_s"] }} seconds
+        </p>
+
+        <h2>Today</h2>
+
+        <p>
+            Focus time:
+            {{ focus_time_today }}
+        </p>
+
+        <p>
+            Sessions:
+            {{ session_count_today }}
+        </p>
+
+        <p>
+            Longest session:
+            {{ longest_session_today }}
+        </p>
+
+        <h2>Temperature Today</h2>
+        <canvas id="temperatureChart"></canvas>
+
+        <h2>Humidity Today</h2>
+        <canvas id="humidityChart"></canvas>
+    {% else %}
+
+        <p>No telemetry received yet.</p>
+
+    {% endif %}
+
+{% if latest %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const timestamps = {{ timestamps | tojson }};
+    const temperatures = {{ temperatures | tojson }};
+    const humidities = {{ humidities | tojson }};
+
+    const temperatureContext =
+        document.getElementById("temperatureChart");
+
+    new Chart(temperatureContext, {
+        type: "line",
+
+        data: {
+            labels: timestamps,
+
+            datasets: [
+                {
+                    label: "Temperature (°C)",
+                    data: temperatures
+                }
+            ]
+        }
+    });
+    const humidityContext =
+    document.getElementById("humidityChart");
+
+    new Chart(humidityContext, {
+        type: "line",
+
+        data: {
+            labels: timestamps,
+
+            datasets: [
+                {
+                    label: "Humidity (%)",
+                    data: humidities
+                }
+            ]
+        }
+    });
+</script>
+
+{% endif %}
+
+</body>
+
+</html>
